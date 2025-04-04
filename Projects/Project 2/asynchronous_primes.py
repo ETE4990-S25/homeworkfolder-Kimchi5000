@@ -62,10 +62,10 @@ async def main():
 
     
     # The coroutines for finding the fibonacci sequence and factorial are suspended until the main can determine the highest prime number.
-    fibonacci = await fibonacci(highest_prime)
-    factorial = await factorial(highest_prime)
-    print(f"Fibonacci of {highest_prime}: {fibonacci}")
-    print(f"Factorial of {highest_prime}: {factorial}")
+    fib_result = await fibonacci(highest_prime)
+    fact_result = await factorial(highest_prime)
+    print(f"Fibonacci of {highest_prime}: {fib_result}")
+    print(f"Factorial of {highest_prime}: {fact_result}")
 
     total_time = time.time() - start_time 
     print(f"Total runtime: {total_time:.2f} seconds")
