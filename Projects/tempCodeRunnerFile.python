@@ -1,9 +1,6 @@
 from multiprocessing import Process, Value, Lock
 import time 
 import math
-import sys
-
-sys.set_int_max_str_digits(1000000)
 
 
 def is_prime(n):
@@ -18,7 +15,7 @@ def is_prime(n):
 # This function is run by all processes
 # 'with lock' is used to make sure that only 1 process can access the shared_result variable at a time.
 def find_highest_prime(shared_result, lock, time_limit):
-    highest_prime = 0 # Start checking from 0
+    highest_prime = 0
     start_time = time.time()
 
     while time.time() - start_time < time_limit:
@@ -30,26 +27,20 @@ def find_highest_prime(shared_result, lock, time_limit):
 
 
 def fibonacci(n):
-    fib_digit_limit = 10000
-    if n > fib_digit_limit: 
-        print(f"Fibonacci of {n} is too large to display.  This digit limit is {fib_digit_limit}.  Calculating new value(limit value)...")
-        n = fib_digit_limit
-
+    if n > 1000:  # Set a threshold for Fibonacci calculation
+        return f"Fibonacci of {n} is too large to display."
     a, b = 0, 1
-    for i in range(n):
+    sequence = [a, b]
+    for _ in range(2, n + 1):
         a, b = b, a + b
-    print(f"The Fibonacci number for {n} is: {a}")
-       
+        sequence.append(b)
+    return ' '.join(map(str, sequence)) # Fibonacci sequence should be separated by spaces instead of looking like 1 huge value.
 
 
 def factorial(n): 
-    fact_digit_limit = 10000
-    if n > fact_digit_limit: 
-        print(f"Fibonacci of {n} is too large to display.  This digit limit is {fact_digit_limit}.  Calculating new value(limit value)...")
-        n = fact_digit_limit
-
-    result = math.factorial(n)
-    print(f"The Factorial of {n} is: {result}")
+    if n > 1000:  # Set a threshold for factorial calculation
+        return f"Factorial of {n} is too large to display."
+    return math.factorial(n)
 
 
 # Main function to control flow
@@ -68,7 +59,7 @@ if __name__ == "__main__":
             target=find_highest_prime, 
             args=(shared_result, lock, time_limit)
             )
-        for _ in range(num_processes)
+        for i in range(num_processes)
     ]
 
     for p in processes:
@@ -78,14 +69,10 @@ if __name__ == "__main__":
 
     highest_prime = shared_result.value
     end_time = time.time()
-    print(f"Highest prime found in 3 minutes: {highest_prime}")
+    print(f"Highest prime: {shared_result.value}")
     print(f"Time taken: {end_time - start_time:.2f} seconds")
 
-    fibonacci_process = Process(target=fibonacci, args=(highest_prime,))
-    factorial_process = Process(target=factorial, args=(highest_prime,))
-
-    fibonacci_process.start()
-    factorial_process.start()
-
-    fibonacci_process.join()
-    factorial_process.join()
+    fib_result = fibonacci(highest_prime)
+    fact_result = factorial(highest_prime)
+    print(f"Fibonacci of {highest_prime}: {fib_result}")
+    print(f"Factorial of {highest_prime}: {fact_result}")
