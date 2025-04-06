@@ -4,6 +4,8 @@ import time
 import sys
 
 sys.set_int_max_str_digits(1000000)
+highest_prime = 0
+lock = asyncio.Lock()
 
 # The functions used for this asynchronous application are the same as the multiprocessing one
 # The 'async' keyword used before the function definitions creates each function as a coroutine.
@@ -19,15 +21,16 @@ async def is_prime(n):
 
 # The 'await' keyword allows the current coroutine(find_highest_prime) to be suspended while waiting on the result of "is_prime".
 async def find_highest_prime(shared_value, lock, time_limit):
-    highest_prime = 0 # Start checking from 0
+    global highest_prime
     start_time = time.time()
-
+    n = 0
     while time.time() - start_time < time_limit:
-        if await is_prime(highest_prime):
+        if await is_prime(n):
             async with lock:
-                if highest_prime > shared_value[0]:
-                    shared_value[0] = highest_prime # Only the highest prime value from each process is saved to the shared value.
-        highest_prime += 1
+                if n > shared_value[0]:
+                    shared_value[0] = n  
+        n += 1  
+        await asyncio.sleep(0) 
 
 
 async def fibonacci(n):
@@ -39,23 +42,22 @@ async def fibonacci(n):
     a, b = 0, 1
     for i in range(n):
         a, b = b, a + b
-    print(f"The Fibonacci number for {n} is: {a}")
+    return a
 
 async def factorial(n):
     fact_digit_limit = 1000
     if n > fact_digit_limit: 
-        print(f"Fibonacci of {n} is too large to display.  This digit limit is {fact_digit_limit}.  Calculating new value(limit value)...")
+        print(f"Factorial of {n} is too large to display.  This digit limit is {fact_digit_limit}.  Calculating new value(limit value)...")
         n = fact_digit_limit
 
     result = math.factorial(n)
-    print(f"The Factorial of {n} is: {result}")
+    return result
 
 
 # This is the main flow logic
 # This is the event loop and it is the 'core' of the application that is responsible for suspending and scheduling tasks.
 async def main():
     shared_value = [0]
-    lock = asyncio.Lock()
     start_time = time.time()  
     num_tasks = 5
     time_limit = 180
@@ -81,6 +83,7 @@ async def main():
     # The coroutines for finding the fibonacci sequence and factorial run at the same time.
     fib_result = await fibonacci(highest_prime)
     fact_result = await factorial(highest_prime)
+
     print(f"Fibonacci of {highest_prime}: {fib_result}")
     print(f"Factorial of {highest_prime}: {fact_result}")
               
@@ -90,4 +93,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
