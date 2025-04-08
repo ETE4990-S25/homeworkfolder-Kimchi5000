@@ -1,0 +1,5 @@
+Play-ability:3
+Readability:4
+Quality:4
+Understanding of Python:3
+Overall:3
