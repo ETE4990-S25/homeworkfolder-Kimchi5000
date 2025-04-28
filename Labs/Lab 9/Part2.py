@@ -1,4 +1,6 @@
 import re
+import json
+
 
 def read_the_log_file(filename):
     log_lines = [] 
@@ -10,6 +12,7 @@ def read_the_log_file(filename):
         print("file not found")
 
     return log_lines
+
 
 def parse_log_lines(log_lines):
     # Define the regex pattern to match log entries
@@ -30,3 +33,33 @@ def parse_log_lines(log_lines):
             print("Log entry does not match the expected format:", line)
 
     return parsed_logs
+
+
+def count_log_levels(parsed_logs):
+    log_level_count = {}
+
+    for log in parsed_logs:
+        level = log['log_level']
+        message = log['message']
+
+        if level not in log_level_count:
+            log_level_count[level] = {}
+
+        if message not in log_level_count[level]:
+            log_level_count[level][message] = 0
+
+        log_level_count[level][message] += 1
+
+    return log_level_count
+
+def save_to_json(log_counts, filename='log_counts.json'):
+    with open(filename, 'w') as json_file:
+        json.dump(log_counts, json_file, indent=4)
+
+if __name__ == "__main__":
+    log_file_name = 'example_log.log' 
+    parsed_log_entries = read_the_log_file(log_file_name)  
+
+    log_counts = count_log_levels(parsed_log_entries)
+
+    save_to_json(log_counts)
